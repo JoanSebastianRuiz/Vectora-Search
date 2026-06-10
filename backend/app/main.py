@@ -1,8 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from app.api.health import router as health_router
 from app.api.products import router as products_router
+from app.api.categories import router as categories_router
 
 app = FastAPI()
 
-app.include_router(health_router)
-app.include_router(products_router)
+api_router = APIRouter(prefix="/api")
+
+api_router.include_router(health_router)
+api_router.include_router(products_router)
+api_router.include_router(categories_router)
+
+app.include_router(api_router)
