@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: `${import.meta.env.VITE_BACKEND_URL}/api`,
   timeout: 10000,
 });
