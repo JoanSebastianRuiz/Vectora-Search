@@ -6,6 +6,7 @@ from app.schemas.product.response import ProductResponse
 from app.services.product_service import ProductService
 from app.schemas.product.create import ProductCreate
 from app.schemas.search.request import SearchRequest
+from app.schemas.product.search import ProductSearch
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -60,7 +61,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     return {"detail": "Product deleted successfully"}
 
 
-@router.post("/search", response_model=list[ProductResponse])
+@router.post("/search", response_model=list[ProductSearch])
 def search_products(data: SearchRequest, db: Session = Depends(get_db)):
     service = ProductService(db)
 

@@ -5,6 +5,8 @@ from app.models.product import Product
 from app.models.category import Category
 from app.schemas.product.create import ProductCreate
 from app.services.embedding_service import EmbeddingService
+from app.schemas.product.search import ProductSearch
+from app.schemas.product.response import ProductResponse
 
 
 class ProductService:
@@ -96,20 +98,28 @@ class ProductService:
     def semantic_search(
         self,
         query: str,
-        limit: int = 10,
-        threshold: float = 0.4,
-    ) -> list[Product]:
+        limit: int = 9,
+        threshold: float = 0.7,
+    ) -> list[ProductSearch]:
 
         query_embedding = EmbeddingService.generate(query)
 
         distance = Product.embedding.cosine_distance(query_embedding)
 
         stmt = (
-            select(Product)
+            select(Product, distance.label("score"))
             .options(joinedload(Product.category))
             .where(distance <= threshold)
             .order_by(distance)
             .limit(limit)
         )
 
-        return self.db.execute(stmt).scalars().all()
+        results = self.db.execute(stmt).all()
+
+        return [
+            ProductSearch(
+                product=ProductResponse.model_validate(product),
+                score=max(0.0, min(1.0, 1 - float(score))),
+            )
+            for product, score in results
+        ]
